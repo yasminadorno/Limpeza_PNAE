@@ -249,12 +249,12 @@ pepinoi;pepino;1
 aceroola;acerola;1
 caquis;caqui;1
 bolino;bolinho;1
-bolino;bovino;1
+bolino;bovino;0
 pimnta;pimenta;1
 laranaja;laranja;1
-mama;maca;1
-mama;mamao;1
-mama;mana;1
+mama;maca;0
+mama;mamao;0
+mama;mana;0
 abaicaxi;abacaxi;1
 de;pe;0
 abacaxis;abacaxi;1
@@ -306,7 +306,7 @@ poplpa;polpa;1
 feijo;feijao;1
 quaibo;quiabo;1
 quibo;quiabo;1
-quibo;quibe;1
+quibo;quibe;0
 poulpa;polpa;1
 camu;caju;1
 nota;nata;1
