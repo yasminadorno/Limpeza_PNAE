@@ -1,0 +1,5 @@
+"0","# Referência IPEA (observações únicas da primeira palavra do item de referência)"
+"0","load(""~/GitHub/Limpeza_PNAE/dicipea.Rda"")"
+"0",""
+"0","# Base fnde (observações únicas da primeira palavra do item)"
+"0","load(""~/GitHub/Limpeza_PNAE/dicfnde.Rda"")"

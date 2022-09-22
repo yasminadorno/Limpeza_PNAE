@@ -1,0 +1,429 @@
+---
+title: "Caderno de atividades práticas no R - Econometria, A.G. Maia e R. Ballini"
+author: "João Pedro Magro"
+date: "Última atualização no dia `r format(Sys.time(), '%d de %B de %Y')`"
+output:
+  html_document:
+    number_sections: true
+  toc: true
+---
+
+# Introdução {.tabset}
+
+<br>
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE
+                      ,results = 'show'
+                      ,error=FALSE
+                      ,warning=FALSE
+                      ,message=FALSE
+                      ,eval = TRUE)
+options(scipen=999)
+```
+
+<br>
+
+# Bibliotecas utilizadas {.tabset}
+
+```{r Bibliotecas}
+#Leitura de dados
+library("readr", "readxl")
+
+#Manipulação, plot e tabelas
+library("tidyverse")
+library(ggstance)
+library(huxtable)
+library(jtools)
+library(kableExtra)
+
+#Exercícios
+library("wooldridge")
+
+#Bibliotecas de apoio para análises
+library(lmtest)
+
+```
+
+<br>
+
+## Informações de interesse (Vignettes das bibliotecas)
+
+<br>
+
+*Rmarkdown Cookbook*:
+
+<br>
+
+<https://bookdown.org/yihui/rmarkdown-cookbook/>
+
+<br>
+<br>
+
+*jtools*:
+
+<br>
+
+<https://jtools.jacob-long.com/articles/summ.html>
+
+<br>
+<br>
+
+*lmtest*:
+
+<br>
+
+<https://cran.r-project.org/web/packages/lmtest/lmtest.pdf>
+
+<br>
+<br>
+
+Pacotes que preciso dar uma olhada:
+
+<br>
+
+*Equatiomatic*: <https://cran.r-project.org/web/packages/equatiomatic/vignettes/intro-equatiomatic.html>
+
+
+<br>
+<br>
+<br>
+<br>
+
+# Aula 1 
+***
+
+<br>
+
+Sem atividades, apenas apresentação do R.
+
+<br>
+<br>
+<br>
+<br>
+
+# Aula 2 
+***
+
+<br>
+
+## Exemplo "Wage 2" do Wooldridge
+
+```{r  , eval=TRUE}
+#Leitura dos dados
+data("wage2")
+```
+
+<br>
+<br>
+
+### Ajustando - MQO Simples
+
+<br>
+
+```{r}
+#Ajuste Modelo Linear por MQO
+mqo1 <- lm(wage ~ educ, data=wage2)
+summ(mqo1)
+```
+
+<br>
+
+Desse resultado podemos inferir, dentro de uma margem de erro menor do que 1%, 
+que o aumento em uma unidade de anos de escolaridade implica, em média, um 
+aumento na renda de US$60,21 - Uma vez que os dados estão em dólares. Tendo como 
+parâmetro para análise do ajustamento do modelo o Rquadrado, o 
+modelo proposto explica cerca de 10,7% da variação nos rendimentos dos indivíduos 
+amostrados tendo como variável independente os anos de estudo.
+
+<br>
+<br>
+
+### Ajustando - MQO Multiplo
+
+```{r}
+#Ajuste Modelo Linear por MQO
+mqo1 <- lm(wage ~ educ + age, data=wage2)
+summ(mqo1)
+```
+
+<br>
+
+Agora o modelo adotado foi de regressão múltipla e com probabilidade de erro
+ inferior a 1% pode-se afirmar que a variação de um ano de estudo em *ceteris paribus* 
+ aumenta em US$60 dólares e a variação em um ano na idade da amostra, em *ceteris paribus*
+ promove um aumento de 20 dólares. O ajuste, analisado através do $R^2$ foi
+ ligeiramente melhor e o teste de fischer mostrou verdadeira a análise.
+
+<br>
+<br>
+<br>
+<br>
+
+# Aula 3 - Regressão múltipla, tópicos adicionais
+***
+
+<br>
+
+## Descrição do problema
+
+<br>
+
+O arquivo rental (disponível na biblioteca "wooldridge" do R) contém 128 observações de dados municipais. As variáveis de interesse na análise são:   
+
+*rent*: valor médio do aluguel mensal no município (dólares)   
+*avginc*: renda per capita do município (dólares anuais)   
+*enroll*: número de alunos de graduação residentes no município   
+
+<br>
+
+##### Sejam os modelos: {-}
+
+Modelo 1: $Rent = \alpha + \beta_1 AvgInc +\beta_2 Enroll + e_{erro}$
+
+<br>
+
+Modelo 2: $Ln(Rent) = \alpha + \beta_1 Ln(AvgInc) +\beta_2 Enroll + e_{erro}$
+
+<br>
+<br>
+
+### Questão 1
+
+<br>
+
+Estime os modelos por MQO e analise as estimativas e testes estatísticos para os coeficientes:
+```{r Aula 3 - Q1, echo=TRUE}
+#Modelo 1
+lm1 <- lm( rent ~ avginc + enroll ,data=rental)
+
+#Modelo 2
+lm2 <- lm(log(rent) ~ log(avginc) + enroll ,data=rental)
+
+
+```
+
+<br>
+
+Como podemos observar na tabela abaixo, no modelo 1, a variável *avginc* possui significância estatística com intervalo de segurança menor que 0,001. Ele nos indica que, com a variação de $\Delta_{avginc}\cong1$ a variação observada em *rent* será, em média, de $\Delta_{rent}\cong 104,657$ reais. Já no modelo 2, como as variáveis *rent* e *avginc* passaram por uma transformação logarítimica, a relação entre as variáveis se altera. Para que seja possível avaliarmos quais são as alterações médias quando variamos 8avginc* em *ceteris paribus* percisamos primeiro fazer com que a variação observada seja pequena e segundo que ela seja comparável em termos dimensionais. A segunda necessidade é fácilmente atendida com a derivação do modelo:
+<br>
+
+$\frac{\Delta_{rent}}{\Delta_{avginc}} = \frac{\mathrm{d_{rent}} }{\mathrm{d_{avginc}}}=\beta_{avginc}$
+
+<br>
+
+Entretanto a primeira precisa ser desenvolvida após a aplicação dos estimadores. A segunda alteração consiste na dividão de ambos os lados da igualdade por $100$, fazendo com que a variação de uma unidade - o que significava uma variação muito peuqena no modelo anterior - agora represente a variação de 0,01 $\Delta_{avginc}\cong\frac{1}{100}=0,01$, uma variação onde a variação média estimada pelos estimadores é mais precisa.
+
+<br>
+<br>
+
+#### Tabela  para análise comparativa dos modelos 1 & 2:
+```{r Plot Aula 3 - Q1, echo=FALSE, results = 'asis'}
+#exportando os resultados
+export_summs(lm1,lm2 , scale = TRUE, digits = 3 ,error_format = "(p = {p.value})")
+```
+
+<br>
+<br>
+<br>
+<br>
+
+
+### Questão 2
+
+<br>
+
+Compare a qualidade do ajuste dos modelos 1 e 2:
+
+<br>
+
+Como podemos observar, o modelo 1 tem um $R^2$ maior do que o modelo 2, uma diferença de $0.035$. Como o $R^2$ representa a aderência do modelo mediante a porcentagem da variação observada em Y que é "explicada" pelas variáveis independentes, a diferença entre o modelo 1 e o modelo 2 é de apenas $3,5%$ maior  de aderência às variações da variável *rent*.
+
+<br>
+<br>
+<br>
+<br>
+
+### Questão 3
+
+<br>
+
+Analise o resultado do teste de especificação (RESET) para o modelo 2:
+
+<br>
+
+```{r RESET test Modelo2}
+resettest(lm(log(rent) ~ log(avginc) + enroll ,data=rental), power = 2, type = "regressor")
+```
+
+<br>
+
+Como podemos observar pelo *print* acima do teste de Ramsey para falha de especificação de forma funcional, a adição do termo quadrático na equação surtiria em um possível aumento de $R^2$ com uma probabilidade menor que $1%$ de erro.   
+Uma forma de se "descobrir" qual relação quadrática deve ser adicionada ao modelo é executar o teste de *wald* entre os possíveis modelos nested:
+
+<br>
+<br>
+
+```{r teste WALD}
+#Criando os modelos
+lm2quad1 <- lm(log(rent) ~ log(avginc) + enroll + I(enroll^2) ,data=rental)
+lm2quad2 <- lm(log(rent) ~ log(avginc)+ I(log(avginc)^2) + enroll ,data=rental)
+
+#Aplicando o teste de Wald
+waldtest(lm2, lm2quad1,test = "F")
+waldtest(lm2, lm2quad2,test = "F")
+
+```
+
+<br>
+
+Como pode ser observado, o teste de *Wald* indica que o modelo no qual a variável *enroll* possui um termo elevado ao quadrado tem a forma funcional mais adequada para a análise em questão com um erro menor que $5%$.
+
+<br>
+<br>
+<br>
+<br>
+
+### Questão 4 {.tabset}
+
+<br>
+
+Adicione o termo quadrático para variável enroll no modelo 2 e interprete o resultado (o que significa a relação quadrática?)
+
+<br>
+<br>
+
+```{r Modelo2 QUAD interpret}
+lm2quad <- lm(log(rent) ~ log(avginc) + enroll + I(enroll^2) ,data=rental)
+summary(lm2quad, digits = 5)
+```
+
+<br>
+
+Para que esse valor possa ser interpretado é necessário derivar a forma funcional do modelo em *enroll*, tendo $\Delta avginc = 0$ o resultado seria $\frac{\Delta rent}{\Delta enroll,\Delta avginc=0} = \frac{\delta rent}{\delta enroll} = \beta_2 + 2\times(\beta_3 \times enroll)$. Ou seja $ \frac{\Delta rent}{\Delta enroll,\Delta avginc=0} = 0.00001 + 2\times(-0.000 \times enroll) $.   
+Além disso, a relação quadrática entre os termos é uma forma funcional da qual, através de uma linearidade por anamorfose garante uma relação linear entre os termos, apesar desta ser uma relação quadrática. Essa transformação viabiliza a aplicação do método *MQO*.
+
+<br>
+<br>
+<br>
+<br>
+
+# Aula 4 - Variáveis binárias
+
+***
+
+<br>
+
+## Descrição do problema:
+
+O arquivo *rental* (disponível na biblioteca "wooldridge" do R) contém 128 observações de dados municipais. As variáveis de interesse na análise são:
+
+<br>
+
+*rent*: valor médio do aluguel mensal no município (dólares);   
+*avginc*: renda per capita do município (dólares anuais);   
+*enroll*: número de alunos de graduação residentes no município;   
+*y90*: variável binária que assume 1 se as informações se referem ao ano de 1990 e 0 caso se refiram ao ano de 1980.   
+
+
+<br>
+<br>
+
+#### Sejam os modelos: {-}
+
+<br>
+
+Modelo 1: $ln(rent) = \alpha + \beta_1 ln(avginc) + \beta_2ln(enroll) + \beta_3 y90 + e_{erro} $
+
+<br>
+
+Modelo 2: $ln(rent) = \alpha + \beta_1 ln(avginc) + \beta_2ln(enroll) + \beta_3 y90 + \beta4 ln(enroll)\times y90 + e_{erro}$
+
+<br>
+
+### Questão 1
+
+<br>
+
+Estime os modelo 1 e 2 por MQO e analise as estimativas e signficância dos coeficientes associados às variáveis binárias;
+
+<br>
+
+```{r Al4Q1, echo=TRUE}
+#Modelo 1
+
+lm1 <- lm(log(rent) ~ log(avginc) + log(enroll) + y90, data=rental)
+
+#Modelo 2
+
+lm2 <- lm(log(rent) ~ log(avginc) + log(enroll) + y90 +  log(enroll) * y90, data=rental)
+
+export_summs(lm1,lm2 , scale = TRUE, digits = 3 ,error_format = "(p = {p.value})")
+
+```
+
+```{r, echo=FALSE}
+lm2 <- lm(log(rent) ~ log(avginc) + log(enroll) + y90 +  I(log(enroll) * y90), data=rental)
+```
+
+<br>
+
+Para que possamos analisar a real variação observada pelo efeito "causado" pela variação dos anos se faz necessário fazer uma transformação do estimador, esta será descrita por:   
+$\frac{\Delta rent}{rent}=e^{\beta_3} - 1$   
+Calculando as variações:
+
+```{r cálculo das variações}
+
+VarBin <- data.frame(
+   "Modelos" = c("Modelo 1", "Modelo 2"),
+   "y90" = c(exp(0.301)-1,exp(0.303)-1),
+   "Ln(enroll) * y90" = c(NA, exp(0.020)-1)
+)
+
+kbl(VarBin,table.attr = "style = \"color: black;\"", position = "c") |>
+  kable_styling(font_size = 16, position = "c", full_width = FALSE)
+
+```
+
+<br>
+
+Como podemos observar pela tabela acima, a diferença média entre os dois anos amostrados no banco de dados dos valores de aluguel foi de aproximadamente 35%, segundo o Modelo 1. Essa variação é observada no intercepto das retas estimadas, fazerndo com que a reta do ano de 1990 seja se desloque $\alpha_1 \times 1,35$ para cima.   
+Quando adicionamos a interação entre o logarítmo neperiano do número de indivíduos matriculados nas universidades e o ano amostrado a variação no irtercepto continua com a mesma grandeza e valor e a interação entre as duas variáveis é de $0,02$ , ou seja, a diferença entre as duas inclinações das retas estimadas pelos modelos é de $0,02$.
+
+<br>
+<br>
+
+### Questão 2
+
+<br>
+
+Analise os resultados do teste de mudança estrutural da relação entre ln(rent) e ln(enroll) entre os anos de 1980 e 1990.
+
+<br>
+
+No caso, os dois modelos já propostos na atividade são resectivamente o modelo restrito (modelo 1) e irrestrito (modelo 2).
+
+<br>
+
+
+```{r Teste de mudança estrutural}
+
+waldtest(lm1, lm2, test="F")
+
+```
+
+<br>
+
+Como pode ser observado pelo resultado do teste de *wald* a inclusão da relação entre *enroll* e *y90* não contribuem na estimação da variabilidade observada em Y. 
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>

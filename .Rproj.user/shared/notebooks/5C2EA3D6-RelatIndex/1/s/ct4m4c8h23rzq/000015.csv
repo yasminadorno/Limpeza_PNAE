@@ -1,0 +1,8 @@
+"0","regional=c(""bergamota"", ""ponkan"", ""macaxeira"", ""aipim"", ""jerimum"", ""colorau"", ""mugunza"")"
+"0","regional_table=tibble(regional)"
+"0","colnames(regional_table)=c(""ipea_raw"")"
+"0",""
+"0","dicipea=rbind(dicipea, regional_table)"
+"2","Error in match.names(clabs, names(xi)) : 
+  nomes não correspondem aos nomes anteriores
+"

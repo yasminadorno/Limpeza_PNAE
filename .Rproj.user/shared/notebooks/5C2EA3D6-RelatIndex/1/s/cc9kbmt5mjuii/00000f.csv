@@ -1,0 +1,5 @@
+"0","regional=c(""bergamota"", ""ponkan"", ""macaxeira"", ""aipim"", ""jerimum"", ""colorau"", ""mugunza"")"
+"0",""
+"0","regional_table <- tibble( ""ipea_raw"" = regional )"
+"0",""
+"0","colnames(dicipea)=c(""ipea_raw"")"

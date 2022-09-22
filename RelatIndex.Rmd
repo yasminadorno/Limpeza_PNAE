@@ -1,0 +1,217 @@
+---
+title: "Relatório de indexação"
+author: "Yasmin Adorno"
+date: "Última atualização no dia `r format(Sys.time(), '%d de %B de %Y')`"
+output:
+  html_document:
+    number_sections: true
+  toc: true
+---
+
+<br>
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE
+                      ,results = 'show'
+                      ,error=FALSE
+                      ,warning=FALSE
+                      ,message=FALSE
+                      ,eval = TRUE)
+options(scipen=999)
+```
+
+<br>
+
+# Bibliotecas utilizadas {-}
+***
+
+<br>
+
+```{r Bibliotecas}
+#Leitura de dados
+library("readr", "readxl")
+
+#Manipulação, plot e tabelas
+library(tidyverse)
+library(kableExtra)
+library(stringr)
+library(writexl)
+library(lubridate)
+library(fuzzyjoin)
+```
+
+<br>
+<br>
+
+# Bases de dados {-}
+***
+
+<br>
+
+```{r}
+# Referência IPEA (observações únicas da primeira palavra do item de referência)
+load("~/GitHub/Limpeza_PNAE/dicipea.Rda")
+
+# Base fnde (observações únicas da primeira palavra do item)
+load("~/GitHub/Limpeza_PNAE/dicfnde.Rda")
+```
+
+<br>
+<br>
+
+# Manipulação de dados
+***
+
+<br>
+
+## Inclusão de regionalismos na base do IPEA
+
+<br>
+
+Bergamota e ponkan é mexerica! (tangerina também, mas já tem na base)   
+Macaxeira e aipim é mandioca   
+Jerimum é abobora   
+Colorau é urucum   
+Mugunza é canjica   
+
+<br>
+
+```{r}
+regional=c("bergamota", "ponkan", "macaxeira", "aipim", "jerimum", "colorau", "mugunza")
+regional_table=tibble(regional)
+colnames(regional_table)=c("ipea_raw")
+
+dicipea=rbind(dicipea, regional_table)
+View(dicipea)
+```
+
+<br>
+
+```{r}
+regional=c("bergamota", "ponkan", "macaxeira", "aipim", "jerimum", "colorau", "mugunza")
+
+regional_table <- tibble( "ipea_raw" = regional )
+
+colnames(dicipea)=c("ipea_raw")
+```
+
+<br>
+<br>
+
+# Indexação de variáveis
+***
+
+<br>
+
+## Primeira Rodada: max.dist = 0
+
+<br>
+
+```{r}
+fnde_ipea <- dicfnde%>%
+               stringdist_left_join(dicipea, by=c("fnde_raw"="ipea_raw"), max_dist=0)
+```
+
+<br>
+<br>
+
+### Checagem
+
+<br>
+
+```{r}
+# Número de sucessos
+fnde_ipea_0_sucesso <- fnde_ipea%>%
+                         filter(!is.na(ipea_raw))
+
+# Salvar sucesso para etapa de supervisão
+write.csv(fnde_ipea_0_sucesso, "fnde_ipea_0_sucesso.csv")
+
+# Fracasso na primeira rodada
+fnde_ipea_0_fracasso <- fnde_ipea%>%
+                          filter(is.na(ipea_raw))
+```
+
+### Tabela de checagem
+
+```{r}
+# Tabela de checagem
+TabCheck <- NULL
+
+# Checagem de linhas primeira rodada
+Tot <- nrow(fnde_ipea)
+TotSuc <- nrow(fnde_ipea_0_sucesso) ## 196
+TotFrc <- nrow(fnde_ipea_0_fracasso) ## 877 ok!
+
+TabCheckTemp <- tibble( "Rodada" = c("Max. Dist = 0"),
+                    "Total de linhas" = Tot,
+                    "Total de sucessos" = TotSuc,
+                    "Total de fracassos" = TotFrc)|>
+            mutate(CHECK = if_else(Tot == (TotSuc+TotFrc) , "OK", "ERRO"))
+
+TabCheck <- bind_rows(TabCheck, TabCheckTemp)
+
+kbl(TabCheck ,table.attr = "style = \"color: black;\"", position = "c")|>
+  kable_styling(font_size = 16, position = "c", full_width = FALSE)
+```
+
+<br>
+
+## Primeira Rodada: max.dist = 1
+
+<br>
+
+```{r}
+fnde_ipea_1 <- fnde_ipea_0_fracasso%>%
+                 select(fnde_raw)%>%
+                 stringdist_left_join(dicipea, by=c("fnde_raw"="ipea_raw"), max_dist=1)
+```
+
+<br>
+<br>
+
+## Checagem
+
+<br>
+
+```{r}
+# Número de sucessos
+fnde_ipea_1_sucesso <- fnde_ipea_1%>%
+                         filter(!is.na(fnde_ipea_1$ipea_raw))
+
+# Salvar sucesso para etapa de supervisão
+write.csv(fnde_ipea_1_sucesso, "fnde_ipea_1_sucesso.csv")
+
+# Fracasso na segunda rodada
+fnde_ipea_1_fracasso <- fnde_ipea_1%>%
+                          filter(is.na(fnde_ipea_1$ipea_raw))
+```
+
+## Tabela de checagem
+
+```{r}
+# Checagem de linhas segunda rodada
+Tot <- nrow(fnde_ipea_0_fracasso)
+TotSuc <- nrow(fnde_ipea_1_sucesso) ## 196
+TotFrc <- nrow(fnde_ipea_1_fracasso) ## 877 ok!
+
+TabCheckTemp <- tibble( "Rodada" = c("Max. Dist = 1"),
+                    "Total de linhas" = Tot,
+                    "Total de sucessos" = TotSuc,
+                    "Total de fracassos" = TotFrc)|>
+            mutate(CHECK = if_else(Tot == (TotSuc+TotFrc) , "OK", "ERRO"))
+
+TabCheck <- bind_rows(TabCheck, TabCheckTemp)
+
+kbl(TabCheck ,table.attr = "style = \"color: black;\"", position = "c")|>
+  kable_styling(font_size = 16, position = "c", full_width = FALSE)
+```
+
+<br>
+<br>
+
+# Back Log {-}
+
+<br>
+
+Aqui agnt anota queles trem que não podemos esquecer, mas sempre esquecemos.

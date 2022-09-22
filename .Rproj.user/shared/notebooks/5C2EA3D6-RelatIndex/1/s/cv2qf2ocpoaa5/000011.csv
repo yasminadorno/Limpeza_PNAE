@@ -1,0 +1,9 @@
+"0","# Número de sucessos
+fnde_ipea_1_sucesso <- fnde_ipea_1%>%
+                         filter(!is.na(ipea_raw))
+"
+"2","Error: Problem with `filter()` input `..1`.
+[34mi[39m Input `..1` is `!is.na(ipea_raw)`.
+[31mx[39m object 'ipea_raw' not found
+[90mRun `rlang::last_error()` to see where the error occurred.[39m
+"

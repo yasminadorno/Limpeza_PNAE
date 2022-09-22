@@ -1,0 +1,2 @@
+"0","fnde_ipea <- dicfnde%>%"
+"0","               stringdist_left_join(dicipea, by=c(""fnde_raw""=""ipea_raw""), max_dist=0)"
