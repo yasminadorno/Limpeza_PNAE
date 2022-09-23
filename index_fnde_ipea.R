@@ -214,7 +214,7 @@ nrow(sucesso_supervis_3)
 nrow(sucesso_supervis_4)
 
 sucesso_supervis_total=rbind(sucesso_supervis_0,sucesso_supervis_1,sucesso_supervis_2, sucesso_supervis_3, sucesso_supervis_4)
-nrow(sucesso_supervis_total) ## 689 itens indexados com sucesso, que corresponde a 65% dos itens da base do PNAE
+nrow(sucesso_supervis_total) ## 684 itens indexados com sucesso, que corresponde a 65% dos itens da base do PNAE
 colnames(sucesso_supervis_total)
 sucesso_supervis_total=sucesso_supervis_total%>%select(1,2)
 
@@ -259,5 +259,9 @@ unique(itens_separados$fnde_raw) ## 1073 itens únicos na base
 unique(dici_final$fnde_raw) ## 1070 itens únicos no dicionário ... 3 itens faltantes (?) 
 
 fnde_clean_2019=itens_separados%>%left_join(dici_final, by="fnde_raw")
-nrow(fnde_clean_2019) ## 2.983.748
-nrow(itens_separados) ## 2.983.329 ### a função left join adicionou 419 linhas...
+nrow(fnde_clean_2019) ## 2.983.721
+nrow(itens_separados) ## 2.983.329 ### a função left join adicionou 392 linhas...
+
+# Salvar!
+save(fnde_clean_2019, file="fnde_clean_2019.Rda")
+save(dici_final, file="dici_final.Rda")
